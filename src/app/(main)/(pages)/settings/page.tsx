@@ -1,3 +1,4 @@
+import ProfileForm from "@/components/forms/profile-form";
 import React from "react";
 
 const page = () => {
@@ -13,6 +14,7 @@ const page = () => {
             Add or update your information
           </p>
         </div>
+        <ProfileForm />
       </div>
     </div>
   );
