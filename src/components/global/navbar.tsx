@@ -3,8 +3,10 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 import { MenuIcon } from 'lucide-react'
+import { UserButton, currentUser } from '@clerk/nextjs'
 
-const Navbar = () => {
+const Navbar = async() => {
+  const user=await currentUser();
   return (
     <header className='fixed left-0 right-0 top-0 py-4 px-4 bg-black/40 backdrop-blur-lg z-[100] flex items-center border-b-[1px] border-neutral-900 justify-between'>
         <aside className='flex items-center gap-[2px]'>
@@ -52,6 +54,7 @@ const Navbar = () => {
             Get Started
           </span>
         </Link>
+        {user ? <UserButton afterSignOutUrl="/" /> : null}
        
         <MenuIcon className="md:hidden" />
       </aside>
