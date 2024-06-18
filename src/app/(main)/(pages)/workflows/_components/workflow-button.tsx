@@ -1,8 +1,19 @@
+"use client";
+
+import { Button } from '@/components/ui/button'
+import { Plus } from 'lucide-react';
 import React from 'react'
 
 const WorkflowButton = () => {
+
+  const handleClick=()=>{
+
+  }
   return (
-    <div>WorkflowButton</div>
+    <Button  size={'icon'} onClick={handleClick}>
+      <Plus />
+
+    </Button>
   )
 }
 
