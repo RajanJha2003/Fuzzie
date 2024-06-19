@@ -87,7 +87,7 @@ const EditorCanvas = () => {
     (event:any)=>{
       event.preventDefault();
 
-      const type:EditorCanvasCardType['type']=event.dataTrasfer.getData(
+      const type:EditorCanvasCardType['type']=event.dataTransfer.getData(
         'application/reactflow'
       );
 
