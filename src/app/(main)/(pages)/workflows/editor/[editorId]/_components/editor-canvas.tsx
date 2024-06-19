@@ -1,10 +1,7 @@
-"use client";
-
-import { EditorCanvasCardType, EditorNodeType } from '@/lib/types';
-import { useEditor } from '@/providers/editor-provider';
+'use client'
+import { EditorCanvasCardType, EditorNodeType } from '@/lib/types'
+import { useEditor } from '@/providers/editor-provider'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import EditorCanvasCardSingle from './editor-canvas-card-single';
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import ReactFlow, {
   Background,
   Connection,
@@ -19,19 +16,27 @@ import ReactFlow, {
   addEdge,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
-import { usePathname } from 'next/navigation';
-import { toast } from 'sonner';
-import { EditorCanvasDefaultCardTypes } from '@/lib/constant';
+import EditorCanvasCardSingle from './editor-canvas-card-single'
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from '@/components/ui/resizable'
+import { toast } from 'sonner'
+import { usePathname } from 'next/navigation'
 import { v4 } from 'uuid'
-import FlowInstance from './flow-instance';
-import EditorCanvasSidebar from './editor-canvas-sidebar';
+import { EditorCanvasDefaultCardTypes } from '@/lib/constant'
+import FlowInstance from './flow-instance'
+import EditorCanvasSidebar from './editor-canvas-sidebar'
+import { onGetNodesEdges } from '../../../_actions/workflow-connections'
 
-
+type Props = {}
 
 const initialNodes: EditorNodeType[] = []
 
 const initialEdges: { id: string; source: string; target: string }[] = []
-const EditorCanvas = () => {
+
+const EditorCanvas = (props: Props) => {
   const { dispatch, state } = useEditor()
   const [nodes, setNodes] = useState(initialNodes)
   const [edges, setEdges] = useState(initialEdges)
@@ -39,24 +44,6 @@ const EditorCanvas = () => {
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance>()
   const pathname = usePathname()
-
-  const nodeTypes = useMemo(
-    () => ({
-      Action: EditorCanvasCardSingle,
-      Trigger: EditorCanvasCardSingle,
-      Email: EditorCanvasCardSingle,
-      Condition: EditorCanvasCardSingle,
-      AI: EditorCanvasCardSingle,
-      Slack: EditorCanvasCardSingle,
-      'Google Drive': EditorCanvasCardSingle,
-      Notion: EditorCanvasCardSingle,
-      Discord: EditorCanvasCardSingle,
-      'Custom Webhook': EditorCanvasCardSingle,
-      'Google Calendar': EditorCanvasCardSingle,
-      Wait: EditorCanvasCardSingle,
-    }),
-    []
-  )
 
   const onDragOver = useCallback((event: any) => {
     event.preventDefault()
@@ -83,25 +70,31 @@ const EditorCanvas = () => {
     []
   )
 
-  const onDrop=useCallback(
-    (event:any)=>{
-      event.preventDefault();
+  const onDrop = useCallback(
+    (event: any) => {
+      event.preventDefault()
 
-      const type:EditorCanvasCardType['type']=event.dataTransfer.getData(
+      const type: EditorCanvasCardType['type'] = event.dataTransfer.getData(
         'application/reactflow'
-      );
+      )
 
-      if(typeof type==="undefined" || !type){
-        return;
+      // check if the dropped element is valid
+      if (typeof type === 'undefined' || !type) {
+        return
       }
 
-      const triggerAlreadyExists=state.editor.elements.find((node)=>node.type==="Trigger")
+      const triggerAlreadyExists = state.editor.elements.find(
+        (node) => node.type === 'Trigger'
+      )
 
       if (type === 'Trigger' && triggerAlreadyExists) {
         toast('Only one trigger can be added to automations at the moment')
         return
       }
 
+      // reactFlowInstance.project was renamed to reactFlowInstance.screenToFlowPosition
+      // and you don't need to subtract the reactFlowBounds.left/top anymore
+      // details: https://reactflow.dev/whats-new/2023-11-10
       if (!reactFlowInstance) return
       const position = reactFlowInstance.screenToFlowPosition({
         x: event.clientX,
@@ -123,7 +116,6 @@ const EditorCanvas = () => {
       }
       //@ts-ignore
       setNodes((nds) => nds.concat(newNode))
-
     },
     [reactFlowInstance, state]
   )
@@ -152,15 +144,49 @@ const EditorCanvas = () => {
   useEffect(() => {
     dispatch({ type: 'LOAD_DATA', payload: { edges, elements: nodes } })
   }, [nodes, edges])
+
+  const nodeTypes = useMemo(
+    () => ({
+      Action: EditorCanvasCardSingle,
+      Trigger: EditorCanvasCardSingle,
+      Email: EditorCanvasCardSingle,
+      Condition: EditorCanvasCardSingle,
+      AI: EditorCanvasCardSingle,
+      Slack: EditorCanvasCardSingle,
+      'Google Drive': EditorCanvasCardSingle,
+      Notion: EditorCanvasCardSingle,
+      Discord: EditorCanvasCardSingle,
+      'Custom Webhook': EditorCanvasCardSingle,
+      'Google Calendar': EditorCanvasCardSingle,
+      Wait: EditorCanvasCardSingle,
+    }),
+    []
+  )
+
+  const onGetWorkFlow = async () => {
+    setIsWorkFlowLoading(true)
+    const response = await onGetNodesEdges(pathname.split('/').pop()!)
+    if (response) {
+      setEdges(JSON.parse(response.edges!))
+      setNodes(JSON.parse(response.nodes!))
+      setIsWorkFlowLoading(false)
+    }
+    setIsWorkFlowLoading(false)
+  }
+
+  useEffect(() => {
+    onGetWorkFlow()
+  }, [])
+
   return (
     <ResizablePanelGroup direction="horizontal">
       <ResizablePanel defaultSize={70}>
-      <div className="flex h-full items-center justify-center">
+        <div className="flex h-full items-center justify-center">
           <div
             style={{ width: '100%', height: '100%', paddingBottom: '70px' }}
             className="relative"
           >
-             {isWorkFlowLoading ? (
+            {isWorkFlowLoading ? (
               <div className="absolute flex h-full w-full items-center justify-center">
                 <svg
                   aria-hidden="true"
@@ -209,9 +235,8 @@ const EditorCanvas = () => {
                 />
               </ReactFlow>
             )}
-            </div>
-            </div>
-
+          </div>
+        </div>
       </ResizablePanel>
       <ResizableHandle />
       <ResizablePanel
@@ -246,7 +271,7 @@ const EditorCanvas = () => {
           </FlowInstance>
         )}
       </ResizablePanel>
-      </ResizablePanelGroup>
+    </ResizablePanelGroup>
   )
 }
 
