@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { CONNECTIONS, EditorCanvasDefaultCardTypes } from '@/lib/constant';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import EditorCanvasIconHelper from './editor-canvas-card-icon-hepler';
-import { onConnections, onDragStart } from '@/lib/editor-utils';
+import { fetchBotSlackChannels, onConnections, onDragStart } from '@/lib/editor-utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import RenderConnectionAccordion from './render-connection-accordion';
 import RenderOutputAccordion from './render-output-accordian';
@@ -28,6 +28,15 @@ const EditorCanvasSidebar = ({nodes}:Props) => {
       onConnections(nodeConnection, state, googleFile)
     }
   }, [state])
+
+  useEffect(() => {
+    if (nodeConnection.slackNode.slackAccessToken) {
+      fetchBotSlackChannels(
+        nodeConnection.slackNode.slackAccessToken,
+        setSlackChannels
+      )
+    }
+  }, [nodeConnection])
   return (
     <aside>
         <Tabs>

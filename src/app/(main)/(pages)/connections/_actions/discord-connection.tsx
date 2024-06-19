@@ -1,5 +1,6 @@
 import { db } from "@/lib/db"
 import { currentUser } from "@clerk/nextjs"
+import axios from "axios"
 
 
 
@@ -105,4 +106,19 @@ export const onDiscordConnect=async(channel_id: string,
             
                 return webhook
               }
+            }
+
+
+            export const postContentToWebhook=async(content:string,url:string)=>{
+                console.log(content);
+                if(content!=" "){
+                    const posted=await axios.post(url,{content});
+                    if(posted){
+                        return {message:"Success"}
+                    }
+
+                    return {message:'Failed Request'}
+                }
+                return { message: 'String empty' }
+
             }
