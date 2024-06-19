@@ -14,6 +14,7 @@ import { EditorState } from "@/providers/editor-provider";
 import React from "react";
 import GoogleFileDetails from "./google-file-details";
 import GoogleDriveFiles from "./google-drive-files";
+import ActionButton from "./action-button";
 
 export interface Option {
   value: string;
@@ -105,6 +106,12 @@ const ContentBasedOnTitle = ({
       </Card>
 
       {title === 'Google Drive' && <GoogleDriveFiles />}
+      <ActionButton
+            currentService={title}
+            nodeConnection={nodeConnection}
+            channels={selectedSlackChannels}
+            setChannels={setSelectedSlackChannels}
+          />
     </AccordionContent>
   );
 };
