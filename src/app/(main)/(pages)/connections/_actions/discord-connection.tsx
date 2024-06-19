@@ -1,4 +1,5 @@
 import { db } from "@/lib/db"
+import { currentUser } from "@clerk/nextjs"
 
 
 
@@ -86,3 +87,22 @@ export const onDiscordConnect=async(channel_id: string,
               }
             }
           }
+
+
+          export const getDiscordConnectionUrl=async()=>{
+            const user=await currentUser();
+            if (user) {
+                const webhook = await db.discordWebhook.findFirst({
+                  where: {
+                    userId: user.id,
+                  },
+                  select: {
+                    url: true,
+                    name: true,
+                    guildName: true,
+                  },
+                })
+            
+                return webhook
+              }
+            }
