@@ -12,6 +12,7 @@ import EditorCanvasIconHelper from './editor-canvas-card-icon-hepler';
 import { onDragStart } from '@/lib/editor-utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import RenderConnectionAccordion from './render-connection-accordion';
+import RenderOutputAccordion from './render-output-accordian';
 
 type Props = {
     nodes: EditorNodeType[]
@@ -92,10 +93,10 @@ const EditorCanvasSidebar = ({nodes}:Props) => {
               <AccordionTrigger className="!no-underline">
                 Action
               </AccordionTrigger>
-              {/* <RenderOutputAccordion
+              <RenderOutputAccordion
                 state={state}
                 nodeConnection={nodeConnection}
-              /> */}
+              />
             </AccordionItem>
           </Accordion>
         </TabsContent>
