@@ -120,6 +120,7 @@ const page = async(props:Props) => {
             title={connection.title}
             icon={connection.image}
             type={connection.title}
+            connected={connections}
               
             />
           ))}

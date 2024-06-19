@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { useNodeConnections } from '@/providers/connections-provider'
 import { usePathname } from 'next/navigation'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { onCreateNodesEdges, onFlowPublish } from '../_actions/workflow-connections';
 import { toast } from 'sonner';
 
@@ -33,6 +33,24 @@ const FlowInstance = ({children,edges,nodes}:Props) => {
     const response = await onFlowPublish(pathname.split('/').pop()!, true)
     if (response) toast.message(response)
   }, [])
+
+  const onAutomateFlow = async () => {
+    const flows: any = []
+    const connectedEdges = edges.map((edge) => edge.target)
+    connectedEdges.map((target) => {
+      nodes.map((node) => {
+        if (node.id === target) {
+          flows.push(node.type)
+        }
+      })
+    })
+
+    setIsFlow(flows)
+  }
+
+  useEffect(() => {
+    onAutomateFlow()
+  }, [edges])
 
 
   return (
